@@ -19,7 +19,7 @@ import org.hibernate.annotations.BatchSize;
  * A user.
  */
 @Entity
-@Table(name = "jhi_user")
+@Table(name = "user")
 public class User extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -37,51 +37,65 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @JsonIgnore
     @NotNull
     @Size(min = 60, max = 60)
-    @Column(name = "password_hash", length = 60, nullable = false)
+    @Column(name = "password", length = 60, nullable = false)
     private String password;
 
     @Size(max = 50)
-    @Column(name = "first_name", length = 50)
-    private String firstName;
+    @Column(name = "name", length = 50)
+    private String name;
 
     @Size(max = 50)
-    @Column(name = "last_name", length = 50)
-    private String lastName;
+    @Column(name = "phone", length = 50)
+    private String phone;
+
+    @Size(max = 500)
+    @Column(name = "description", length = 500)
+    private String description;
 
     @Email
-    @Size(min = 5, max = 254)
-    @Column(length = 254, unique = true)
+    @Size(max = 50)
+    @Column(length = 50, unique = true)
     private String email;
 
+    @ManyToOne
+    private Address address;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "avatar_id", referencedColumnName = "id")
+    private Image avatar;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "cover_id", referencedColumnName = "id")
+    private Image cover;
+
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "is_active", nullable = false)
     private boolean activated = false;
-
-    @Size(min = 2, max = 10)
-    @Column(name = "lang_key", length = 10)
-    private String langKey;
-
-    @Size(max = 256)
-    @Column(name = "image_url", length = 256)
-    private String imageUrl;
-
-    @Size(max = 20)
-    @Column(name = "activation_key", length = 20)
-    @JsonIgnore
-    private String activationKey;
 
     @Size(max = 20)
     @Column(name = "reset_key", length = 20)
     @JsonIgnore
     private String resetKey;
 
-    @Column(name = "reset_date")
-    private Instant resetDate = null;
+    //
+    //    @Size(max = 20)
+    //    @Column(name = "activation_key", length = 20)
+    //    @JsonIgnore
+    //    private String activationKey;
 
     @JsonIgnore
     @ManyToMany
     @JoinTable(
-        name = "jhi_user_authority",
+        name = "user_image",
+        joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id") },
+        inverseJoinColumns = { @JoinColumn(name = "image_id", referencedColumnName = "id") }
+    )
+    private Set<Image> images = new HashSet<>();
+
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(
+        name = "user_authority",
         joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id") },
         inverseJoinColumns = { @JoinColumn(name = "authority_name", referencedColumnName = "name") }
     )
@@ -100,6 +114,14 @@ public class User extends AbstractAuditingEntity implements Serializable {
         return login;
     }
 
+    public String getResetKey() {
+        return resetKey;
+    }
+
+    public void setResetKey(String resetKey) {
+        this.resetKey = resetKey;
+    }
+
     // Lowercase the login before saving it in database
     public void setLogin(String login) {
         this.login = StringUtils.lowerCase(login, Locale.ENGLISH);
@@ -113,20 +135,52 @@ public class User extends AbstractAuditingEntity implements Serializable {
         this.password = password;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public Set<Image> getImages() {
+        return images;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setImages(Set<Image> images) {
+        this.images = images;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getName() {
+        return name;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Image getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(Image avatar) {
+        this.avatar = avatar;
+    }
+
+    public Image getCover() {
+        return cover;
+    }
+
+    public void setCover(Image cover) {
+        this.cover = cover;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getEmail() {
@@ -137,12 +191,12 @@ public class User extends AbstractAuditingEntity implements Serializable {
         this.email = email;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public Address getAddress() {
+        return address;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     public boolean isActivated() {
@@ -153,37 +207,13 @@ public class User extends AbstractAuditingEntity implements Serializable {
         this.activated = activated;
     }
 
-    public String getActivationKey() {
-        return activationKey;
-    }
-
-    public void setActivationKey(String activationKey) {
-        this.activationKey = activationKey;
-    }
-
-    public String getResetKey() {
-        return resetKey;
-    }
-
-    public void setResetKey(String resetKey) {
-        this.resetKey = resetKey;
-    }
-
-    public Instant getResetDate() {
-        return resetDate;
-    }
-
-    public void setResetDate(Instant resetDate) {
-        this.resetDate = resetDate;
-    }
-
-    public String getLangKey() {
-        return langKey;
-    }
-
-    public void setLangKey(String langKey) {
-        this.langKey = langKey;
-    }
+    //    public String getActivationKey() {
+    //        return activationKey;
+    //    }
+    //
+    //    public void setActivationKey(String activationKey) {
+    //        this.activationKey = activationKey;
+    //    }
 
     public Set<Authority> getAuthorities() {
         return authorities;
@@ -206,22 +236,46 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     @Override
     public int hashCode() {
-        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return getClass().hashCode();
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
-        return "User{" +
-            "login='" + login + '\'' +
-            ", firstName='" + firstName + '\'' +
-            ", lastName='" + lastName + '\'' +
-            ", email='" + email + '\'' +
-            ", imageUrl='" + imageUrl + '\'' +
-            ", activated='" + activated + '\'' +
-            ", langKey='" + langKey + '\'' +
-            ", activationKey='" + activationKey + '\'' +
-            "}";
+        return (
+            "User{" +
+            "id=" +
+            id +
+            ", login='" +
+            login +
+            '\'' +
+            ", password='" +
+            password +
+            '\'' +
+            ", name='" +
+            name +
+            '\'' +
+            ", phone='" +
+            phone +
+            '\'' +
+            ", description='" +
+            description +
+            '\'' +
+            ", email='" +
+            email +
+            '\'' +
+            ", activated=" +
+            activated +
+            ", address=" +
+            address +
+            ", avatar=" +
+            avatar +
+            ", cover=" +
+            cover +
+            ", images=" +
+            images +
+            ", authorities=" +
+            authorities +
+            '}'
+        );
     }
 }

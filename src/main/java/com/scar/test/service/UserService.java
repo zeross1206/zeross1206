@@ -1,13 +1,17 @@
 package com.scar.test.service;
 
 import com.scar.test.config.Constants;
+import com.scar.test.domain.Address;
 import com.scar.test.domain.Authority;
+import com.scar.test.domain.Image;
 import com.scar.test.domain.User;
 import com.scar.test.repository.AuthorityRepository;
+import com.scar.test.repository.ImageRepository;
 import com.scar.test.repository.UserRepository;
 import com.scar.test.security.AuthoritiesConstants;
 import com.scar.test.security.SecurityUtils;
 import com.scar.test.service.dto.AdminUserDTO;
+import com.scar.test.service.dto.ImageDTO;
 import com.scar.test.service.dto.UserDTO;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -38,34 +42,27 @@ public class UserService {
 
     private final AuthorityRepository authorityRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository) {
+    private final ImageRepository imageRepository;
+
+    public UserService(
+        UserRepository userRepository,
+        PasswordEncoder passwordEncoder,
+        AuthorityRepository authorityRepository,
+        ImageRepository imageRepository
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
-    }
-
-    public Optional<User> activateRegistration(String key) {
-        log.debug("Activating user for activation key {}", key);
-        return userRepository
-            .findOneByActivationKey(key)
-            .map(user -> {
-                // activate given user for the registration key.
-                user.setActivated(true);
-                user.setActivationKey(null);
-                log.debug("Activated user: {}", user);
-                return user;
-            });
+        this.imageRepository = imageRepository;
     }
 
     public Optional<User> completePasswordReset(String newPassword, String key) {
         log.debug("Reset user password for reset key {}", key);
         return userRepository
             .findOneByResetKey(key)
-            .filter(user -> user.getResetDate().isAfter(Instant.now().minus(1, ChronoUnit.DAYS)))
             .map(user -> {
                 user.setPassword(passwordEncoder.encode(newPassword));
                 user.setResetKey(null);
-                user.setResetDate(null);
                 return user;
             });
     }
@@ -76,7 +73,6 @@ public class UserService {
             .filter(User::isActivated)
             .map(user -> {
                 user.setResetKey(RandomUtil.generateResetKey());
-                user.setResetDate(Instant.now());
                 return user;
             });
     }
@@ -103,20 +99,19 @@ public class UserService {
         newUser.setLogin(userDTO.getLogin().toLowerCase());
         // new user gets initially a generated password
         newUser.setPassword(encryptedPassword);
-        newUser.setFirstName(userDTO.getFirstName());
-        newUser.setLastName(userDTO.getLastName());
+        newUser.setName(userDTO.getName());
+        newUser.setPhone(userDTO.getPhone());
         if (userDTO.getEmail() != null) {
             newUser.setEmail(userDTO.getEmail().toLowerCase());
         }
-        newUser.setImageUrl(userDTO.getImageUrl());
-        newUser.setLangKey(userDTO.getLangKey());
-        // new user is not active
-        newUser.setActivated(false);
-        // new user gets registration key
-        newUser.setActivationKey(RandomUtil.generateActivationKey());
+        newUser.setDescription(userDTO.getDescription());
+        newUser.setAddress(userDTO.getAddress());
+        //avatar and cover is null
+        newUser.setActivated(true);
         Set<Authority> authorities = new HashSet<>();
         authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
         newUser.setAuthorities(authorities);
+        newUser.setImages(new HashSet<>());
         userRepository.save(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
@@ -134,22 +129,20 @@ public class UserService {
     public User createUser(AdminUserDTO userDTO) {
         User user = new User();
         user.setLogin(userDTO.getLogin().toLowerCase());
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
+        user.setName(userDTO.getName());
+        user.setPhone(userDTO.getPhone());
         if (userDTO.getEmail() != null) {
             user.setEmail(userDTO.getEmail().toLowerCase());
         }
-        user.setImageUrl(userDTO.getImageUrl());
-        if (userDTO.getLangKey() == null) {
-            user.setLangKey(Constants.DEFAULT_LANGUAGE); // default language
-        } else {
-            user.setLangKey(userDTO.getLangKey());
-        }
+        user.setDescription(userDTO.getDescription());
+        user.setAddress(userDTO.getAddress());
+        user.setAvatar(userDTO.getAvatar());
+        user.setCover(userDTO.getCover());
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
         user.setPassword(encryptedPassword);
         user.setResetKey(RandomUtil.generateResetKey());
-        user.setResetDate(Instant.now());
         user.setActivated(true);
+        user.setImages(userDTO.getImages());
         if (userDTO.getAuthorities() != null) {
             Set<Authority> authorities = userDTO
                 .getAuthorities()
@@ -178,14 +171,17 @@ public class UserService {
             .map(Optional::get)
             .map(user -> {
                 user.setLogin(userDTO.getLogin().toLowerCase());
-                user.setFirstName(userDTO.getFirstName());
-                user.setLastName(userDTO.getLastName());
+                user.setName(userDTO.getName());
+                user.setPhone(userDTO.getPhone());
+                user.setDescription(userDTO.getDescription());
                 if (userDTO.getEmail() != null) {
                     user.setEmail(userDTO.getEmail().toLowerCase());
                 }
-                user.setImageUrl(userDTO.getImageUrl());
+                user.setAddress(userDTO.getAddress());
+                user.setAvatar(userDTO.getAvatar());
+                user.setCover(userDTO.getCover());
                 user.setActivated(userDTO.isActivated());
-                user.setLangKey(userDTO.getLangKey());
+                user.setImages(userDTO.getImages());
                 Set<Authority> managedAuthorities = user.getAuthorities();
                 managedAuthorities.clear();
                 userDTO
@@ -210,28 +206,47 @@ public class UserService {
             });
     }
 
-    /**
-     * Update basic information (first name, last name, email, language) for the current user.
-     *
-     * @param firstName first name of user.
-     * @param lastName  last name of user.
-     * @param email     email id of user.
-     * @param langKey   language key.
-     * @param imageUrl  image URL of user.
-     */
-    public void updateUser(String firstName, String lastName, String email, String langKey, String imageUrl) {
+    public void updateUser(String name, String phone, String description, String email, Address address) {
         SecurityUtils
             .getCurrentUserLogin()
             .flatMap(userRepository::findOneByLogin)
             .ifPresent(user -> {
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
+                user.setName(name);
+                user.setPhone(phone);
                 if (email != null) {
                     user.setEmail(email.toLowerCase());
                 }
-                user.setLangKey(langKey);
-                user.setImageUrl(imageUrl);
+                user.setDescription(description);
+                user.setAddress(address);
                 log.debug("Changed Information for User: {}", user);
+            });
+    }
+
+    public void updateUserAvatar(ImageDTO imageDTO) {
+        Image avatar = new Image();
+        avatar.setImage(imageDTO.getImage());
+        avatar.setUploadedDate(imageDTO.getUploaded_date());
+        imageRepository.save(avatar);
+        SecurityUtils
+            .getCurrentUserLogin()
+            .flatMap(userRepository::findOneByLogin)
+            .ifPresent(user -> {
+                user.setAvatar(avatar);
+                log.debug("Changed Avatar for User: {}", user);
+            });
+    }
+
+    public void updateUserCover(ImageDTO imageDTO) {
+        Image cover = new Image();
+        cover.setImage(imageDTO.getImage());
+        cover.setUploadedDate(imageDTO.getUploaded_date());
+        imageRepository.save(cover);
+        SecurityUtils
+            .getCurrentUserLogin()
+            .flatMap(userRepository::findOneByLogin)
+            .ifPresent(user -> {
+                user.setCover(cover);
+                log.debug("Changed Avatar for User: {}", user);
             });
     }
 
@@ -279,7 +294,7 @@ public class UserService {
     @Scheduled(cron = "0 0 1 * * ?")
     public void removeNotActivatedUsers() {
         userRepository
-            .findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(Instant.now().minus(3, ChronoUnit.DAYS))
+            .findAllByActivatedIsFalseAndCreatedDateBefore(Instant.now().minus(3, ChronoUnit.DAYS))
             .forEach(user -> {
                 log.debug("Deleting not activated user {}", user.getLogin());
                 userRepository.delete(user);

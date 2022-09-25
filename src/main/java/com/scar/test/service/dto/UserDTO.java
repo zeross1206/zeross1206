@@ -11,13 +11,10 @@ public class UserDTO {
 
     private String login;
 
-    public UserDTO() {
-        // Empty constructor needed for Jackson.
-    }
+    public UserDTO() {}
 
     public UserDTO(User user) {
         this.id = user.getId();
-        // Customize it here if you need, or not, firstName/lastName/etc
         this.login = user.getLogin();
     }
 

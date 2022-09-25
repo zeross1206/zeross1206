@@ -6,6 +6,7 @@ import com.scar.test.security.SecurityUtils;
 import com.scar.test.service.MailService;
 import com.scar.test.service.UserService;
 import com.scar.test.service.dto.AdminUserDTO;
+import com.scar.test.service.dto.ImageDTO;
 import com.scar.test.service.dto.PasswordChangeDTO;
 import com.scar.test.web.rest.errors.*;
 import com.scar.test.web.rest.vm.KeyAndPasswordVM;
@@ -57,12 +58,22 @@ public class AccountResource {
      */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
+    public void registerUserAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
         if (isPasswordLengthInvalid(managedUserVM.getPassword())) {
             throw new InvalidPasswordException();
         }
         User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
-        mailService.sendActivationEmail(user);
+        //        mailService.sendActivationEmail(user);
+    }
+
+    @PostMapping("/register-club")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void registerClubAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
+        if (isPasswordLengthInvalid(managedUserVM.getPassword())) {
+            throw new InvalidPasswordException();
+        }
+        User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
+        //        mailService.sendActivationEmail(user);
     }
 
     /**
@@ -73,10 +84,10 @@ public class AccountResource {
      */
     @GetMapping("/activate")
     public void activateAccount(@RequestParam(value = "key") String key) {
-        Optional<User> user = userService.activateRegistration(key);
-        if (!user.isPresent()) {
-            throw new AccountResourceException("No user was found for this activation key");
-        }
+        //        Optional<User> user = userService.activateRegistration(key);
+        //        if (!user.isPresent()) {
+        //            throw new AccountResourceException("No user was found for this activation key");
+        //        }
     }
 
     /**
@@ -125,13 +136,33 @@ public class AccountResource {
         if (!user.isPresent()) {
             throw new AccountResourceException("User could not be found");
         }
-        userService.updateUser(
-            userDTO.getFirstName(),
-            userDTO.getLastName(),
-            userDTO.getEmail(),
-            userDTO.getLangKey(),
-            userDTO.getImageUrl()
-        );
+        userService.updateUser(userDTO.getName(), userDTO.getPhone(), userDTO.getDescription(), userDTO.getEmail(), userDTO.getAddress());
+    }
+
+    @PostMapping("/account/change-avatar")
+    public void changeAvatar(@RequestBody ImageDTO imageDTO) {
+        String userLogin = SecurityUtils
+            .getCurrentUserLogin()
+            .orElseThrow(() -> new AccountResourceException("Current user login not found"));
+
+        Optional<User> user = userRepository.findOneByLogin(userLogin);
+        if (!user.isPresent()) {
+            throw new AccountResourceException("User could not be found");
+        }
+        userService.updateUserAvatar(imageDTO);
+    }
+
+    @PostMapping("/account/change-cover")
+    public void changeCover(@RequestBody ImageDTO imageDTO) {
+        String userLogin = SecurityUtils
+            .getCurrentUserLogin()
+            .orElseThrow(() -> new AccountResourceException("Current user login not found"));
+
+        Optional<User> user = userRepository.findOneByLogin(userLogin);
+        if (!user.isPresent()) {
+            throw new AccountResourceException("User could not be found");
+        }
+        userService.updateUserCover(imageDTO);
     }
 
     /**

@@ -40,6 +40,8 @@
     "devServerPort": 4200,
     "clientPackageManager": "npm",
     "languages": ["vi"],
-    "enableGradleEnterprise": false
+    "enableGradleEnterprise": false,
+    "lastLiquibaseTimestamp": 1664128549000,
+    "entities": ["Image", "Address", "Report"]
   }
 }

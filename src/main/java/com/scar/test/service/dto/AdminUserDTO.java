@@ -1,8 +1,12 @@
 package com.scar.test.service.dto;
 
 import com.scar.test.config.Constants;
+import com.scar.test.domain.Address;
 import com.scar.test.domain.Authority;
+import com.scar.test.domain.Image;
 import com.scar.test.domain.User;
+import com.scar.test.service.mapper.AddressMapper;
+import com.scar.test.service.mapper.ImageMapper;
 import java.time.Instant;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,23 +25,25 @@ public class AdminUserDTO {
     private String login;
 
     @Size(max = 50)
-    private String firstName;
+    private String name;
 
     @Size(max = 50)
-    private String lastName;
+    private String phone;
+
+    @Size(max = 500)
+    private String description;
 
     @Email
-    @Size(min = 5, max = 254)
+    @Size(max = 50)
     private String email;
-
-    @Size(max = 256)
-    private String imageUrl;
 
     private boolean activated = false;
 
-    @Size(min = 2, max = 10)
-    private String langKey;
+    private Address address;
 
+    private Image avatar;
+
+    private Image cover;
     private String createdBy;
 
     private Instant createdDate;
@@ -48,6 +54,8 @@ public class AdminUserDTO {
 
     private Set<String> authorities;
 
+    private Set<Image> images;
+
     public AdminUserDTO() {
         // Empty constructor needed for Jackson.
     }
@@ -55,17 +63,76 @@ public class AdminUserDTO {
     public AdminUserDTO(User user) {
         this.id = user.getId();
         this.login = user.getLogin();
-        this.firstName = user.getFirstName();
-        this.lastName = user.getLastName();
+        this.name = user.getName();
+        this.phone = user.getPhone();
+        this.description = user.getDescription();
         this.email = user.getEmail();
         this.activated = user.isActivated();
-        this.imageUrl = user.getImageUrl();
-        this.langKey = user.getLangKey();
+        this.address = user.getAddress();
+        this.avatar = user.getAvatar();
+        this.cover = user.getCover();
         this.createdBy = user.getCreatedBy();
         this.createdDate = user.getCreatedDate();
         this.lastModifiedBy = user.getLastModifiedBy();
         this.lastModifiedDate = user.getLastModifiedDate();
         this.authorities = user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet());
+        this.images = user.getImages();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public Image getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(Image avatar) {
+        this.avatar = avatar;
+    }
+
+    public Image getCover() {
+        return cover;
+    }
+
+    public void setCover(Image cover) {
+        this.cover = cover;
+    }
+
+    public Set<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(Set<Image> images) {
+        this.images = images;
     }
 
     public Long getId() {
@@ -84,22 +151,6 @@ public class AdminUserDTO {
         this.login = login;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -108,28 +159,12 @@ public class AdminUserDTO {
         this.email = email;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
     public boolean isActivated() {
         return activated;
     }
 
     public void setActivated(boolean activated) {
         this.activated = activated;
-    }
-
-    public String getLangKey() {
-        return langKey;
-    }
-
-    public void setLangKey(String langKey) {
-        this.langKey = langKey;
     }
 
     public String getCreatedBy() {
@@ -177,12 +212,8 @@ public class AdminUserDTO {
     public String toString() {
         return "AdminUserDTO{" +
             "login='" + login + '\'' +
-            ", firstName='" + firstName + '\'' +
-            ", lastName='" + lastName + '\'' +
             ", email='" + email + '\'' +
-            ", imageUrl='" + imageUrl + '\'' +
             ", activated=" + activated +
-            ", langKey='" + langKey + '\'' +
             ", createdBy=" + createdBy +
             ", createdDate=" + createdDate +
             ", lastModifiedBy='" + lastModifiedBy + '\'' +

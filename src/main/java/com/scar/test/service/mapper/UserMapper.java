@@ -47,14 +47,17 @@ public class UserMapper {
             User user = new User();
             user.setId(userDTO.getId());
             user.setLogin(userDTO.getLogin());
-            user.setFirstName(userDTO.getFirstName());
-            user.setLastName(userDTO.getLastName());
+            user.setName(userDTO.getName());
+            user.setAddress(userDTO.getAddress());
+            user.setPhone(userDTO.getPhone());
+            user.setDescription(userDTO.getDescription());
             user.setEmail(userDTO.getEmail());
-            user.setImageUrl(userDTO.getImageUrl());
+            user.setAvatar(userDTO.getAvatar());
+            user.setCover(userDTO.getCover());
             user.setActivated(userDTO.isActivated());
-            user.setLangKey(userDTO.getLangKey());
             Set<Authority> authorities = this.authoritiesFromStrings(userDTO.getAuthorities());
             user.setAuthorities(authorities);
+            user.setImages(userDTO.getImages());
             return user;
         }
     }
