@@ -1,0 +1,25 @@
+{
+  "testApp": {
+    "image": {
+      "home": {
+        "title": "Images",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Image",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Image",
+        "notFound": "No Images found"
+      },
+      "created": "Một Image mới được tạo với định danh {{ param }}",
+      "updated": "Một Image cập nhật với định danh {{ param }}",
+      "deleted": "Một Image đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Image {{ id }}?"
+      },
+      "detail": {
+        "title": "Image"
+      },
+      "id": "ID",
+      "image": "Image",
+      "user_image": "User Image"
+    }
+  }
+}

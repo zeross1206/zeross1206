@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+    <changeSet id="20220925105427-1" author="jhipster">
+        <createTable tableName="image">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="image" type="varbinary(65000)">
+                <constraints nullable="false" />
+            </column>
+            <column name="uploaded_date" type="datetime">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <createTable tableName="user_image">
+            <column name="user_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="image_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="user_id, image_id" tableName="user_image"/>
+
+        <addForeignKeyConstraint baseColumnNames="image_id"
+                                 baseTableName="user_image"
+                                 constraintName="FK_userimage_image_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="image"/>
+
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="user_image"
+                                 constraintName="FK_userimage_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="user"/>
+    </changeSet>
+
+</databaseChangeLog>

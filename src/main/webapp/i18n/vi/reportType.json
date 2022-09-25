@@ -1,0 +1,9 @@
+{
+  "testApp": {
+    "ReportType": {
+      "null": "",
+      "CHEAT": "CHEAT",
+      "VIOLENCE": "VIOLENCE"
+    }
+  }
+}
