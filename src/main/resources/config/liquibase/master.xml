@@ -17,5 +17,6 @@
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220925105427_added_entity_Image.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220925112641_added_entity_Address.xml" relativeToChangelogFile="false"/>
-
+    <include file="config/liquibase/changelog/20220925175549_added_entity_constraints_Report.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220925175549_added_entity_Report.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

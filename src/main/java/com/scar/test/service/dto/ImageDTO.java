@@ -1,6 +1,7 @@
 package com.scar.test.service.dto;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -12,7 +13,7 @@ public class ImageDTO implements Serializable {
 
     private String image;
 
-    private UserDTO user_image;
+    private Instant uploaded_date;
 
     public Long getId() {
         return id;
@@ -30,12 +31,12 @@ public class ImageDTO implements Serializable {
         this.image = image;
     }
 
-    public UserDTO getUser_image() {
-        return user_image;
+    public Instant getUploaded_date() {
+        return uploaded_date;
     }
 
-    public void setUser_image(UserDTO user_image) {
-        this.user_image = user_image;
+    public void setUploaded_date(Instant uploaded_date) {
+        this.uploaded_date = uploaded_date;
     }
 
     @Override
@@ -65,7 +66,6 @@ public class ImageDTO implements Serializable {
         return "ImageDTO{" +
             "id=" + getId() +
             ", image='" + getImage() + "'" +
-            ", user_image=" + getUser_image() +
             "}";
     }
 }

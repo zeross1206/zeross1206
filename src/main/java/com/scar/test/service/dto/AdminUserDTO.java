@@ -5,9 +5,11 @@ import com.scar.test.domain.Address;
 import com.scar.test.domain.Authority;
 import com.scar.test.domain.Image;
 import com.scar.test.domain.User;
+import com.scar.test.domain.enumeration.Gender;
 import com.scar.test.service.mapper.AddressMapper;
 import com.scar.test.service.mapper.ImageMapper;
 import java.time.Instant;
+import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.constraints.*;
@@ -41,6 +43,10 @@ public class AdminUserDTO {
 
     private Address address;
 
+    private Gender gender;
+
+    private Date dob;
+
     private Image avatar;
 
     private Image cover;
@@ -69,6 +75,8 @@ public class AdminUserDTO {
         this.email = user.getEmail();
         this.activated = user.isActivated();
         this.address = user.getAddress();
+        this.gender = user.getGender();
+        this.dob = user.getDob();
         this.avatar = user.getAvatar();
         this.cover = user.getCover();
         this.createdBy = user.getCreatedBy();
@@ -93,6 +101,22 @@ public class AdminUserDTO {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public Date getDob() {
+        return dob;
+    }
+
+    public void setDob(Date dob) {
+        this.dob = dob;
     }
 
     public String getDescription() {

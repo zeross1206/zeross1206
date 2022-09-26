@@ -15,7 +15,7 @@
             <column name="image" type="varbinary(65000)">
                 <constraints nullable="false" />
             </column>
-            <column name="uploaded_date" type="datetime">
+            <column name="uploaded_date" type="timestamp">
                 <constraints nullable="false" />
             </column>
         </createTable>

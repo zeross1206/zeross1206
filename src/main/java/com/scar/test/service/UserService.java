@@ -5,6 +5,7 @@ import com.scar.test.domain.Address;
 import com.scar.test.domain.Authority;
 import com.scar.test.domain.Image;
 import com.scar.test.domain.User;
+import com.scar.test.domain.enumeration.Gender;
 import com.scar.test.repository.AuthorityRepository;
 import com.scar.test.repository.ImageRepository;
 import com.scar.test.repository.UserRepository;
@@ -101,6 +102,8 @@ public class UserService {
         newUser.setPassword(encryptedPassword);
         newUser.setName(userDTO.getName());
         newUser.setPhone(userDTO.getPhone());
+        newUser.setGender(userDTO.getGender());
+        newUser.setDob(userDTO.getDob());
         if (userDTO.getEmail() != null) {
             newUser.setEmail(userDTO.getEmail().toLowerCase());
         }
@@ -110,6 +113,7 @@ public class UserService {
         newUser.setActivated(true);
         Set<Authority> authorities = new HashSet<>();
         authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
+        authorityRepository.findById(AuthoritiesConstants.RENTER).ifPresent(authorities::add);
         newUser.setAuthorities(authorities);
         newUser.setImages(new HashSet<>());
         userRepository.save(newUser);
@@ -136,6 +140,8 @@ public class UserService {
         }
         user.setDescription(userDTO.getDescription());
         user.setAddress(userDTO.getAddress());
+        user.setDob(userDTO.getDob());
+        user.setGender(userDTO.getGender());
         user.setAvatar(userDTO.getAvatar());
         user.setCover(userDTO.getCover());
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
@@ -180,6 +186,8 @@ public class UserService {
                 user.setAddress(userDTO.getAddress());
                 user.setAvatar(userDTO.getAvatar());
                 user.setCover(userDTO.getCover());
+                user.setGender(userDTO.getGender());
+                user.setDob(userDTO.getDob());
                 user.setActivated(userDTO.isActivated());
                 user.setImages(userDTO.getImages());
                 Set<Authority> managedAuthorities = user.getAuthorities();
@@ -206,13 +214,15 @@ public class UserService {
             });
     }
 
-    public void updateUser(String name, String phone, String description, String email, Address address) {
+    public void updateUser(String name, String phone, String description, String email, Gender gender, Date dob, Address address) {
         SecurityUtils
             .getCurrentUserLogin()
             .flatMap(userRepository::findOneByLogin)
             .ifPresent(user -> {
                 user.setName(name);
                 user.setPhone(phone);
+                user.setDob(dob);
+                user.setGender(gender);
                 if (email != null) {
                     user.setEmail(email.toLowerCase());
                 }

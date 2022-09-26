@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import tech.jhipster.config.JHipsterProperties;
+import tech.jhipster.security.RandomUtil;
 
 /**
  * Service for sending emails.
@@ -93,9 +94,22 @@ public class MailService {
     }
 
     @Async
-    public void sendActivationEmail(User user) {
-        log.debug("Sending activation email to '{}'", user.getEmail());
-        sendEmailFromTemplate(user, "mail/activationEmail", "email.activation.title");
+    public String sendActivateEmailFromTemplate(String email, String templateName, String titleKey) {
+        Locale locale = Locale.ENGLISH;
+        Context context = new Context(locale);
+        String key = RandomUtil.generateActivationKey();
+        context.setVariable("KEY", key);
+        context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
+        String content = templateEngine.process(templateName, context);
+        String subject = messageSource.getMessage(titleKey, null, locale);
+        sendEmail(email, subject, content, false, true);
+        return key;
+    }
+
+    @Async
+    public String sendActivationEmail(String email) {
+        log.debug("Sending activation email to '{}'", email);
+        return sendActivateEmailFromTemplate(email, "mail/activationEmail", "email.activation.title");
     }
 
     @Async

@@ -17,7 +17,7 @@ public class ReportDTO implements Serializable {
 
     private String url;
 
-    private UserDTO user_report;
+    private UserDTO userDTO;
 
     public Long getId() {
         return id;
@@ -51,12 +51,12 @@ public class ReportDTO implements Serializable {
         this.url = url;
     }
 
-    public UserDTO getUser_report() {
-        return user_report;
+    public UserDTO getUserDTO() {
+        return userDTO;
     }
 
-    public void setUser_report(UserDTO user_report) {
-        this.user_report = user_report;
+    public void setUserDTO(UserDTO userDTO) {
+        this.userDTO = userDTO;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class ReportDTO implements Serializable {
             ", type='" + getType() + "'" +
             ", content='" + getContent() + "'" +
             ", url='" + getUrl() + "'" +
-            ", user_report=" + getUser_report() +
+            ", user_report=" + getUserDTO() +
             "}";
     }
 }

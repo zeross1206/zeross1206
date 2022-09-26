@@ -9,6 +9,6 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring", uses = { UserMapper.class })
 public interface ReportMapper extends EntityMapper<ReportDTO, Report> {
-    @Mapping(target = "user_report", source = "user_report", qualifiedByName = "login")
-    ReportDTO toDto(Report s);
+    //    @Mapping(target = "user", source = "user_report", qualifiedByName = "id")
+    //    ReportDTO toDto(Report s);
 }

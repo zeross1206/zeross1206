@@ -2,8 +2,10 @@ package com.scar.test.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.scar.test.config.Constants;
+import com.scar.test.domain.enumeration.Gender;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -59,6 +61,12 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     @ManyToOne
     private Address address;
+
+    @Column(name = "gender")
+    private Gender gender;
+
+    @Column(name = "dob")
+    private Date dob;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "avatar_id", referencedColumnName = "id")
@@ -120,6 +128,22 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     public void setResetKey(String resetKey) {
         this.resetKey = resetKey;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public Date getDob() {
+        return dob;
+    }
+
+    public void setDob(Date dob) {
+        this.dob = dob;
     }
 
     // Lowercase the login before saving it in database

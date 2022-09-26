@@ -29,7 +29,7 @@ public class Report implements Serializable {
     private String url;
 
     @ManyToOne
-    private User user_report;
+    private User user;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -85,17 +85,12 @@ public class Report implements Serializable {
         this.url = url;
     }
 
-    public User getUser_report() {
-        return this.user_report;
+    public User getUser() {
+        return user;
     }
 
-    public void setUser_report(User user) {
-        this.user_report = user;
-    }
-
-    public Report user_report(User user) {
-        this.setUser_report(user);
-        return this;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

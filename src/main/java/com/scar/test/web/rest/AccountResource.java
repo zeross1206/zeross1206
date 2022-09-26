@@ -62,7 +62,7 @@ public class AccountResource {
         if (isPasswordLengthInvalid(managedUserVM.getPassword())) {
             throw new InvalidPasswordException();
         }
-        User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
+        userService.registerUser(managedUserVM, managedUserVM.getPassword());
         //        mailService.sendActivationEmail(user);
     }
 
@@ -76,18 +76,10 @@ public class AccountResource {
         //        mailService.sendActivationEmail(user);
     }
 
-    /**
-     * {@code GET  /activate} : activate the registered user.
-     *
-     * @param key the activation key.
-     * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be activated.
-     */
-    @GetMapping("/activate")
-    public void activateAccount(@RequestParam(value = "key") String key) {
-        //        Optional<User> user = userService.activateRegistration(key);
-        //        if (!user.isPresent()) {
-        //            throw new AccountResourceException("No user was found for this activation key");
-        //        }
+    @GetMapping("/activate-email")
+    public String activateEmail(@RequestParam(value = "email") String email) {
+        String activateKey = mailService.sendActivationEmail(email);
+        return activateKey;
     }
 
     /**
@@ -136,7 +128,15 @@ public class AccountResource {
         if (!user.isPresent()) {
             throw new AccountResourceException("User could not be found");
         }
-        userService.updateUser(userDTO.getName(), userDTO.getPhone(), userDTO.getDescription(), userDTO.getEmail(), userDTO.getAddress());
+        userService.updateUser(
+            userDTO.getName(),
+            userDTO.getPhone(),
+            userDTO.getDescription(),
+            userDTO.getEmail(),
+            userDTO.getGender(),
+            userDTO.getDob(),
+            userDTO.getAddress()
+        );
     }
 
     @PostMapping("/account/change-avatar")
